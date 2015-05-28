@@ -61,21 +61,17 @@ individuals = [
     ]
 ]
 
-# w = World()
-# populate!(w, individuals...)
-# actualize(w)
+w = World()
+populate!(w, individuals...)
+actualize(w)
+
+@Natural People begin
+    :name ::ASCIIString
+    :sex ::ASCIIString
+    :groupID ::Int64
+    :height ::Float64
+end
 #
-# @Natural People begin
-#     :name ::ASCIIString
-#     :sex ::ASCIIString
-#     :groupID ::Int64
-#     :height ::Float64
-# end
-#
-# @Natural Students begin
-#     :name ::ASCIIString
-#     :sex ::ASCIIString
-#     :groupID ::Int64
-#     :height ::Float64
-#     :gpa ::Float64
-# end
+@Natural Students <: People begin
+    :gpa ::Float64
+end
