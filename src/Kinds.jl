@@ -1,9 +1,13 @@
 module Kinds
 
-export World, NaturalKind, Kind
-export @Natural, @KindOf
-export populate!, actualize, belongs, show
+export World, Kind, Taxum
+export @Kind, @Taxum
+export super, essence, populate!, actualize, belongs, show
 export actuality, w, individuals
+
+## Export for dev purposes
+export replace_syms
+export @cond
 
 ################################################################
 ##  Types
@@ -11,21 +15,32 @@ export actuality, w, individuals
 
 typealias Individual Dict{Symbol, Any}
 typealias Book Dict{Uint, Individual}
-typealias KindEssence Dict{Symbol, DataType}
-typealias Catalog Dict{DataType, KindEssence}
-typealias Taxonomy Dict{DataType, Array{Expr, 1}}
-abstract NaturalKind
-abstract Kind{K <: NaturalKind}
+typealias Essence Dict{Symbol, DataType}
+typealias Character Array{Expr, 1}
+
+type Kind
+    super::Union(Nothing, Kind)
+    essence::Essence
+end
+
+Kind() = Kind(nothing, Essence())
+
+type Taxum
+    kindof::Kind
+    character::Character
+end
+
+Taxum(k) = Taxum(k, Expr[])
 
 type World
     book::Book
-    catalog::Catalog
-    taxonomy::Taxonomy
 end
 
-function World()
-    World(Book(), Catalog(), Taxonomy())
-end
+World() = World(Book())
+
+################################################################
+##  Constants
+################################################################
 
 const actuality = [ World() ]
 

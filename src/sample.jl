@@ -5,7 +5,7 @@
 # df[:height] = rand(6) .+ 5.5
 
 
-export individuals, w, People, Students
+export individuals, w, people, students
 
 individuals = [
     [
@@ -65,13 +65,13 @@ w = World()
 populate!(w, individuals...)
 actualize(w)
 
-@Natural People begin
+@Kind people begin
     :name ::ASCIIString
     :sex ::ASCIIString
     :groupID ::Int64
     :height ::Float64
 end
 #
-@Natural Students <: People begin
+@Kind students < people begin
     :gpa ::Float64
 end

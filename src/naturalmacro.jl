@@ -1,11 +1,10 @@
 ################################################################
-##  @Natural
+##  @Kind
 ################################################################
 
-function make_essence(d::Symbol, body)
+function make_essence(body)
 
-    e_makedict = Expr(:(=), d)
-    e_dictkeys = Expr(:(dict))
+    e_target = Expr(:(dict))
 
     # Push assignment expressions to arguments of e_dictkeys
     # each such assignment expression has head :(=>), first arg the field name,
@@ -16,48 +15,43 @@ function make_essence(d::Symbol, body)
             _type = (arg).args[2]
             e_key = Expr(:(=>), _field, _type)
 
-            push!(e_dictkeys.args, e_key)
+            push!(e_target.args, e_key)
         end
     end
 
-    push!(e_makedict.args, e_dictkeys)
-    return e_makedict
-
-end
-
-
-function tell_catalog(dname::Symbol, kindname::Symbol)
-
-    e_actuality = Expr(:(.), :Kinds, QuoteNode(:actuality))
-    e_actual = Expr(:ref, e_actuality, 1)
-    e_catalog = Expr(:(.), e_actual, QuoteNode(:catalog))
-
-    e_catalog_ref = Expr(:ref, e_catalog, symbol("$kindname"))
-    e_target = Expr(:(=), e_catalog_ref, dname)
-
     return e_target
-
 end
 
 
-macro Natural(naming, body)
+macro Kind(naming, body)
 
-    e_target = Expr(:block)
-    e_declare = Expr(:abstract)
-    dname = gensym()
+    e_target = Expr(:(=))
+    e_constructor = Expr(:call, :Kind)
 
     if isa(naming, Symbol)
-        kindname = naming
-        push!(e_declare.args, Expr(:(<:), naming, symbol("NaturalKind")))
-    else
-        kindname = symbol( "$(naming.args[1])" )
-        push!(e_declare.args, Expr(:(<:), kindname, naming.args[3]))
+        push!(e_target.args, naming)
+        push!(e_constructor.args, :nothing)
+    elseif naming.head == :comparison && naming.args[2] == :(<)
+        push!(e_target.args, naming.args[1])
+        push!(e_constructor.args, naming.args[3])
     end
 
-    push!(e_target.args, e_declare)
-    push!(e_target.args, make_essence(dname, body))
-    push!(e_target.args, tell_catalog(dname, kindname))
+    push!(e_constructor.args, make_essence(body))
+    push!(e_target.args, e_constructor)
 
     esc(e_target)
 
 end
+
+################################################################
+##  super
+################################################################
+
+super(k::Kind) = k.super
+
+
+################################################################
+##  essence
+################################################################
+
+essence(k::Kind) = k.essence

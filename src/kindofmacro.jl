@@ -1,17 +1,9 @@
 
 ################################################################
-##  @KindOf
+##  @Taxum
 ################################################################
 
-function gen_decl(name, natkind)
 
-    e_curly = :( Kind{$natkind} )
-    e_subtype = Expr(:(<:), name, e_curly)
-    e_target = Expr(:abstract, e_subtype)
-
-    return e_target
-
-end
 
 function make_conds(a::Symbol, body)
 
@@ -30,32 +22,39 @@ function make_conds(a::Symbol, body)
     return e_target
 end
 
-function tell_taxonomy(aname::Symbol, kindname::Symbol)
+function pushconds!(args, body)
 
-    e_actuality = Expr(:(.), :Kinds, QuoteNode(:actuality))
-    e_actual = Expr(:ref, e_actuality, 1)
-    e_taxonomy = Expr(:(.), e_actual, QuoteNode(:taxonomy))
-
-    e_taxonomy_ref = Expr(:ref, e_taxonomy, symbol("$kindname"))
-    e_target = Expr(:(=), e_taxonomy_ref, aname)
-
-    return e_target
+    if body.head == :block
+        println(body)
+        println(body.args)
+        for cond in body.args
+            # cond.head == :line || push!(args, cond)
+        end
+    else
+        println( body )
+        println(typeof(body))
+        # push!(args, body)
+    end
 
 end
 
-macro KindOf(natkind, body)
+macro Taxum(naming, body)
 
-    e_target = Expr(:block)
+    e_target = Expr(:(=))
+    e_character = Expr(:ref, :Expr)
+    e_constructor = Expr(:call, :Taxum)
 
-    kindname = gensym()
-    a = gensym()
-    # println(name)
-    e_declare = gen_decl(kindname, natkind)
+    if naming.head == :comparison && naming.args[2] == :(<)
+        push!(e_target.args, naming.args[1])
+        push!(e_constructor.args, naming.args[3])
+    else
+        error("Error")
+    end
 
-    push!(e_target.args, e_declare)
-    push!(e_target.args, make_conds(a, body))
-    push!(e_target.args, tell_taxonomy(a, kindname))
-    push!(e_target.args, kindname)
+    pushconds!(e_character.args, body)
+
+    push!(e_constructor.args, e_character)
+    push!(e_target.args, e_constructor)
 
     esc(e_target)
 
