@@ -6,22 +6,23 @@ function replace_syms(ind, e::Expr)
     # e_target is the Expr that is built to replace ":(:(field))"
 
     # e_worldbook = Expr(:ref, Expr(:(.), :actual, QuoteNode(:book)), indhash)
-    e_target = Expr(:ref, :( $ind ))
+
+    e_ref = Expr(:ref, :($ind))
 
     # Traverse the syntax tree of e
     if e.head != :quote
-        return Expr(e.head, (isempty(e.args) ? e.args : map(x -> replace_syms(x), e.args))...)
+        return Expr(e.head, (isempty(e.args) ? e.args : map(x -> replace_syms(ind, x), e.args))...)
     else
-        push!(e_target.args, e)
-        return e_target
+        push!(e_target.args, Expr(:(.), QuoteNode(e)))
+        return e_ref
     end
 end
 
-replace_syms(ind, e::QuoteNode) = Expr(:ref, e.value)
+replace_syms(ind, e::QuoteNode) = Expr(:ref, :( $ind ), e)
 replace_syms(ind, e) = e
 
 macro cond(ind, e)
-    esc(replace_syms(ind, e))
+    replace_syms(ind, e)
 end
 
 ################################################################
@@ -46,30 +47,29 @@ function belongs(ind::Individual, k::Kind)
     return true
 end
 
-function belongs(ind::Individual, taxum::Taxum)
+function belongs(ind::Individual, t::Taxum)
 
-    belongs(ind, K) ||return false
+    belongs(ind, kindof(t)) || return false
 
-    for cond in taxum.character
-        belongs(ind, cond) || return false
+    for cond in character(t)
+        e = replace_syms(ind, cond)
+        @eval($e) == true || return false
     end
 
     return true
 end
 
-belongs(ind, cond::Expr) = @cond(ind, cond) ? true : false
+# belongs(ind, cond::Expr) = println(@cond(ind, cond))
 
 
 ################################################################
 ##  show
 ################################################################
 
-function show(k::Kind)
-
+function show(k::AbstractKind)
     actual = actuality[1]
 
     for ind in values(actual.book)
         belongs(ind, k) && println(ind)
     end
-
 end

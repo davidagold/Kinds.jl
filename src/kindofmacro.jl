@@ -3,8 +3,6 @@
 ##  @Taxum
 ################################################################
 
-
-
 function make_conds(a::Symbol, body)
 
     e_target = Expr(:(=), a)
@@ -25,15 +23,11 @@ end
 function pushconds!(args, body)
 
     if body.head == :block
-        println(body)
-        println(body.args)
         for cond in body.args
-            # cond.head == :line || push!(args, cond)
+            cond.head == :line || push!(args, Expr(:quote, cond))
         end
     else
-        println( body )
-        println(typeof(body))
-        # push!(args, body)
+        push!(args, Expr(:quote, body))
     end
 
 end
@@ -57,5 +51,16 @@ macro Taxum(naming, body)
     push!(e_target.args, e_constructor)
 
     esc(e_target)
-
 end
+
+################################################################
+##  kindof
+################################################################
+
+kindof(t::Taxum) = t.kindof
+
+################################################################
+##  character
+################################################################
+
+character(t::Taxum) = t.character

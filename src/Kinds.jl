@@ -2,7 +2,7 @@ module Kinds
 
 export World, Kind, Taxum
 export @Kind, @Taxum
-export super, essence, populate!, actualize, belongs, show
+export super, essence, kindof, character, populate!, actualize, belongs, show
 export actuality, w, individuals
 
 ## Export for dev purposes
@@ -13,19 +13,21 @@ export @cond
 ##  Types
 ################################################################
 
+abstract AbstractKind
+
 typealias Individual Dict{Symbol, Any}
 typealias Book Dict{Uint, Individual}
 typealias Essence Dict{Symbol, DataType}
 typealias Character Array{Expr, 1}
 
-type Kind
+type Kind <: AbstractKind
     super::Union(Nothing, Kind)
     essence::Essence
 end
 
 Kind() = Kind(nothing, Essence())
 
-type Taxum
+type Taxum <: AbstractKind
     kindof::Kind
     character::Character
 end
