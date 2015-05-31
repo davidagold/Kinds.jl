@@ -11,15 +11,14 @@ function populate!(w::World, individuals...)
     end
 
     return nothing
-
 end
-
 
 ################################################################
 ##  actualize
 ################################################################
 
 function actualize(w::World)
+
     actuality[1] = w
     return nothing
 end

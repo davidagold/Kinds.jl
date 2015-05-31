@@ -16,42 +16,40 @@ function make_essence(body)
             e_key = Expr(:(=>), _field, _type)
 
             push!(e_target.args, e_key)
+        elseif arg.head == :line
+        else
+            error("Please provide a type annotation for the field $arg")
         end
     end
 
     return e_target
 end
 
-
 macro Kind(naming, body)
 
-    e_target = Expr(:(=))
+    e_call = Expr(:(=))
     e_constructor = Expr(:call, :Kind)
+    e_target = Expr(:block)
 
     if isa(naming, Symbol)
-        push!(e_target.args, naming)
+        push!(e_call.args, naming)
         push!(e_constructor.args, :nothing)
     elseif naming.head == :comparison && naming.args[2] == :(<)
-        push!(e_target.args, naming.args[1])
+        push!(e_call.args, naming.args[1])
         push!(e_constructor.args, naming.args[3])
     end
 
     push!(e_constructor.args, make_essence(body))
-    push!(e_target.args, e_constructor)
+    push!(e_call.args, e_constructor)
+    push!(e_target.args, e_call)
 
     esc(e_target)
-
 end
 
 ################################################################
-##  super
+##  Auxiliary functinos for Kind
 ################################################################
 
 super(k::Kind) = k.super
-
-
-################################################################
-##  essence
-################################################################
 
 essence(k::Kind) = k.essence

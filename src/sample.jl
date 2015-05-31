@@ -1,9 +1,9 @@
-# df = DataFrame()
-# df[:name] = ["John", "Mary", "Gunther", "Isabel", "Niamh", "Wendy"]
-# df[:sex] = ["M", "F", "M", "F", "F", "F"]
-# df[:groupID] = zeros(Int, 6)
-# df[:height] = rand(6) .+ 5.5
-
+df = DataFrame()
+df[:name] = ["John", "Mary", "Gunther", "Isabel", "Niamh", "Wendy", "Troy"]
+df[:sex] = ["M", "F", "M", "F", "F", "F", "M"]
+df[:groupID] = zeros(Int, 7)
+df[:height] = [5.75, 5.63, 6.10, 5.45, 6.02, 5.72, 5.72]
+df[:gpa] = @data([NA, 3.90, NA, 3.76, NA, NA, 3.44])
 
 export individuals, w, people, students
 
@@ -71,7 +71,7 @@ actualize(w)
     :groupID ::Int64
     :height ::Float64
 end
-#
+
 @Kind students < people begin
     :gpa ::Float64
 end

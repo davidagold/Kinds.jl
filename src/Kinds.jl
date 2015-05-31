@@ -1,5 +1,7 @@
 module Kinds
 
+using DataArrays, DataFrames, DataFramesMeta
+
 export World, Kind, Taxum
 export @Kind, @Taxum
 export super, essence, kindof, character, populate!, actualize, belongs, show
@@ -8,6 +10,7 @@ export actuality, w, individuals
 ## Export for dev purposes
 export replace_syms
 export @cond
+export df
 
 ################################################################
 ##  Types
@@ -46,13 +49,12 @@ World() = World(Book())
 
 const actuality = [ World() ]
 
-
 ################################################################
 ##  Inclusions
 ################################################################
 
-include("naturalmacro.jl")
-include("kindofmacro.jl")
+include("kind.jl")
+include("taxum.jl")
 include("popact.jl")
 include("show.jl")
 
